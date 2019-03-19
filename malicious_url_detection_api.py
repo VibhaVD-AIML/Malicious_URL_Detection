@@ -64,14 +64,22 @@ class urlDetection(Resource):
     def post(self):		
         try:
             test_url = request.get_json()
-            X_predict = vectorizer.transform([test_url['url']])
-            result_predict = logit.predict(X_predict)[0]
+            X_predict = vectorizer.transform([test['url'] for test in test_url])
+            result_predict = logit.predict(X_predict)#X_predict = vectorizer.transform([test_url['url']])
 
         #if not json_data:
         #       return {'message': 'No input data provided'}, 400
-            return {'status': 'success', 'response': str(result_predict)}, 200
+            #for result in test_url:
+                #return  {'status': 'success', 'response':str(np.array(result_predict))}, 200
+            print(len(result_predict))
+            y = []    
+            for x in range(len(result_predict)):
+                z = {'url':test_url[x]['url'],'is_malicious':result_predict[x]}
+                y.append(z)
+                
+            return ({"response":str(y)}),200
         except:
-            return jsonify({'trace': traceback.format_exc()})
+            jsonify({'trace': traceback.format_exc()})
 api.add_resource(urlDetection, '/api/url-detection')
 #api.add_resource(saveTrainData, '/api/retrainmodel')  
 
